@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Map;
 
 // Apache Commons CLI
-import com.nimbusds.jose.JOSEException;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
@@ -44,7 +43,6 @@ public class Launcher {
 	public static void main(String[] args) {
 		Security.addProvider(new BouncyCastleProvider());
 
-
 		options = new Options();
 		configureCommandLineOptions(options);
 
@@ -75,7 +73,7 @@ public class Launcher {
 
 
             // Initialize Vault client and perform update secret operation
-            System.out.println("Storing in vault...");
+            System.out.println("Storing private key in vault...");
             VaultClient vaultClient = new VaultClient();
             if (vaultClient.initialize()) {
                 Map<String, Object> secretData = new HashMap<>();
@@ -110,6 +108,10 @@ public class Launcher {
 
 		CommandLineOptions result = new CommandLineOptions();
 
+        if (cmd.hasOption("h")) {
+            throw printUsageAndExit("Vault JWKS Generator\n");
+        }
+
 		result.size = "2048";
 		result.secretPath = cmd.getOptionValue("p");
         result.generator = KeyIdGenerator.specified("sha256");
@@ -135,8 +137,13 @@ public class Launcher {
 		Algorithm keyAlg;
 	}
 
+    /**
+     *
+     * @param options Options to configure
+     */
 	private static void configureCommandLineOptions(Options options) {
-		options.addOption("p", "path", true, "Vault path to write secret to.");
+		options.addOption("h", "help", false, "Print this help message");
+        options.addOption("p", "path", true, "Vault path to write secret to");
 	}
 
 	// print out a usage message and quit
@@ -146,11 +153,11 @@ public class Launcher {
 			System.err.println(message);
 		}
 
-		List<String> optionOrder = ImmutableList.of("p");
+		List<String> optionOrder = ImmutableList.of("p", "h");
 
 		HelpFormatter formatter = new HelpFormatter();
 		formatter.setOptionComparator(Comparator.comparingInt(o -> optionOrder.indexOf(o.getOpt())));
-		formatter.printHelp("java -jar json-web-key-generator.jar -t <keyType> [options]", options);
+		formatter.printHelp("java -jar json-web-key-generator.jar [options]", options);
 
 		// kill the program
 		System.exit(1);

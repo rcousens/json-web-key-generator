@@ -46,8 +46,14 @@ import com.nimbusds.jose.jwk.KeyType;
  */
 public class KeyWriter {
 
+
     /**
-     * Outputs the JWK to console
+     * Displays a JWK to the console as JSON
+     *
+     * @param jwk JWK to print
+     * @param keySet If true, print the JWK as a keyset
+     * @param privateKey If true, print the private key
+     * @param pubKey If true, print the public key
      */
     public static void displayJWK(JWK jwk, boolean keySet, boolean privateKey, boolean pubKey) {
         // round trip it through GSON to get a prettyprinter
@@ -75,6 +81,13 @@ public class KeyWriter {
         }
     }
 
+    /**
+     * Displays a JWK to the console as PEM encoded certificates
+     *
+     * @param jwk The JWK to print
+     * @param privateKey If true, print the private key
+     * @param pubKey If true, print the public key
+     */
     public static void displayPEM(JWK jwk, boolean privateKey, boolean pubKey) {
         try {
             KeyType keyType = jwk.getKeyType();
@@ -95,7 +108,11 @@ public class KeyWriter {
     }
 
     /**
-     * Prints a key to the console
+     * Prints a public or private JWK to the console as JSON
+     *
+     * @param keySet If true, print a JWK Set
+     * @param jwk The JWK to print
+     * @param gson The GSON instance to use
      */
     private static void printKey(boolean keySet, JWK jwk, Gson gson) {
         if (keySet) {
@@ -108,7 +125,12 @@ public class KeyWriter {
         }
     }
 
-    public static void displaySelfSignedCertificate(JWK jwk) throws IOException, java.text.ParseException {
+    /**
+     * Generate and display a self-signed certificate to the console in PEM encoded format from a JWK
+     *
+     * @param jwk The JWK to use
+     */
+    public static void displaySelfSignedCertificate(JWK jwk) {
         try {
             KeyType keyType = jwk.getKeyType();
             if (keyType.equals(KeyType.RSA)) {
@@ -157,7 +179,9 @@ public class KeyWriter {
     }
 
     /**
-     * Writes PEM formatted keys to the console
+     * Writes keys to the console in PEM encoded format
+     *
+     * @param key The public or private key to display
      */
     private static void writeKeyToConsole(AsymmetricKey key) {
         try {
@@ -187,6 +211,8 @@ public class KeyWriter {
 
     /**
      * Writes PEM formatted certificates to the console
+     *
+     * @param cert The certificate to write
      */
     private static void writeCertificateToConsole(Certificate cert) {
         try {
@@ -231,6 +257,12 @@ public class KeyWriter {
 
     /**
      * Creates a self-signed certificate
+     *
+     * @param pub Public key to match private key
+     * @param priv Private key to sign with
+     * @param subjectDN Subject DN to use
+     * @param signatureAlgorithm Signature algorithm to use
+     * @return Certificate
      */
     public static Certificate selfSign(PublicKey pub, PrivateKey priv, String subjectDN, String signatureAlgorithm) {
         try {
