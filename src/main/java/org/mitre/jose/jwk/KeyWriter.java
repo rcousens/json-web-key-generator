@@ -6,9 +6,11 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.io.StringWriter;
 import java.math.BigInteger;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
+import java.security.AsymmetricKey;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.cert.Certificate;
@@ -45,58 +47,51 @@ import com.nimbusds.jose.jwk.KeyType;
 public class KeyWriter {
 
     /**
-     * Outputs the key to either the console or a file, based on the parameters
+     * Outputs the JWK to console
      */
-    public static void outputKey(boolean keySet, boolean pubKey, String outFile, String pubOutFile, boolean printX509, JWK jwk)
-            throws IOException, java.text.ParseException {
+    public static void displayJWK(JWK jwk, boolean keySet, boolean privateKey, boolean pubKey) {
         // round trip it through GSON to get a prettyprinter
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
-        if (outFile == null) {
 
-            System.out.println("Full key:");
-
+        if (privateKey) {
+            System.out.println("Private key:");
             printKey(keySet, jwk, gson);
-
-            if (pubKey) {
-                System.out.println(); // spacer
-
-                // also print public key, if possible
-                JWK pub = jwk.toPublicJWK();
-
-                if (pub != null) {
-                    System.out.println("Public key:");
-                    printKey(keySet, pub, gson);
-                } else {
-                    System.out.println("No public key.");
-                }
-            }
-
-            if (printX509) {
-
-                try {
-                    KeyType keyType = jwk.getKeyType();
-                    if (keyType.equals(KeyType.RSA)) {
-                        Certificate cert = selfSign(jwk.toRSAKey().toPublicKey(),
-                            jwk.toRSAKey().toPrivateKey(),
-                            jwk.getKeyID() != null ? jwk.getKeyID() : jwk.computeThumbprint().toString(),
-                            "SHA256withRSA"
-                            );
-                        writePEMToConsole(
-                            jwk.toRSAKey().toPublicKey(),
-                            jwk.toRSAKey().toPrivateKey(),
-                            cert
-                            );
-                    } else {
-                        throw new IllegalArgumentException("Unknown key type for X509 encoding: " + keyType);
-                    }
-                } catch (JOSEException e) {
-                    throw new IllegalArgumentException("Error extracting keypair for X509: " + e.getMessage());
-                }
-            }
-
-        } else {
-            writeKeyToFile(keySet, outFile, pubOutFile, jwk, gson);
+            System.out.println(); // spacer
         }
+
+        if (pubKey) {
+
+            // also print public key, if possible
+            JWK pub = jwk.toPublicJWK();
+
+            if (pub != null) {
+                System.out.println("Public key:");
+                printKey(keySet, pub, gson);
+                System.out.println(); // spacer
+            } else {
+                System.out.println("No public key.");
+                System.out.println(); // spacer
+            }
+        }
+    }
+
+    public static void displayPEM(JWK jwk, boolean privateKey, boolean pubKey) {
+        try {
+            KeyType keyType = jwk.getKeyType();
+            if (keyType.equals(KeyType.RSA)) {
+                if (pubKey) {
+                    writeKeyToConsole(jwk.toRSAKey().toPublicKey());
+                }
+                if (privateKey) {
+                    writeKeyToConsole(jwk.toRSAKey().toPrivateKey());
+                }
+            } else {
+                throw new IllegalArgumentException("Unknown key type for X509 encoding: " + keyType);
+            }
+        } catch (JOSEException e) {
+            throw new IllegalArgumentException("Error extracting keypair for X509: " + e.getMessage());
+        }
+
     }
 
     /**
@@ -112,6 +107,25 @@ public class KeyWriter {
             System.out.println(gson.toJson(json));
         }
     }
+
+    public static void displaySelfSignedCertificate(JWK jwk) throws IOException, java.text.ParseException {
+        try {
+            KeyType keyType = jwk.getKeyType();
+            if (keyType.equals(KeyType.RSA)) {
+                Certificate cert = selfSign(jwk.toRSAKey().toPublicKey(),
+                        jwk.toRSAKey().toPrivateKey(),
+                        jwk.getKeyID() != null ? jwk.getKeyID() : jwk.computeThumbprint().toString(),
+                        "SHA256withRSA"
+                );
+                writeCertificateToConsole(cert);
+            } else {
+                throw new IllegalArgumentException("Unknown key type for X509 encoding: " + keyType);
+            }
+        } catch (JOSEException e) {
+            throw new IllegalArgumentException("Error extracting keypair for X509: " + e.getMessage());
+        }
+    }
+
 
     /**
      * Writes a key to a file
@@ -145,29 +159,73 @@ public class KeyWriter {
     /**
      * Writes PEM formatted keys to the console
      */
-    private static void writePEMToConsole(PublicKey publicKey, PrivateKey privateKey, Certificate cert) {
+    private static void writeKeyToConsole(AsymmetricKey key) {
         try {
-            System.out.println();
-            System.out.println("X509 Formatted Keys:");
+            System.out.println(); // spacer
 
             PemWriter pw = new PemWriter(new OutputStreamWriter(System.out));
 
-            if (publicKey != null) {
-                pw.writeObject(new PemObject("PUBLIC KEY", publicKey.getEncoded()));
+            switch (key) {
+                case PrivateKey privateKey -> {
+                    System.out.println("X509 Formatted Private Key:");
+                    pw.writeObject(new PemObject("PRIVATE KEY", privateKey.getEncoded()));
+                }
+                case PublicKey publicKey -> {
+                    System.out.println("X509 Formatted Public Key:");
+                    pw.writeObject(new PemObject("PUBLIC KEY", publicKey.getEncoded()));
+                }
+                default -> {
+                    System.out.println("Unknown key type for X509 encoding: " + key);
+                }
             }
 
-            if (privateKey != null) {
-                pw.writeObject(new PemObject("PRIVATE KEY", privateKey.getEncoded()));
-            }
+            pw.flush();
+        } catch (IOException e) {
+            throw new IllegalArgumentException("Error printing X509 format: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Writes PEM formatted certificates to the console
+     */
+    private static void writeCertificateToConsole(Certificate cert) {
+        try {
+            System.out.println();
+            System.out.println("X509 Formatted Certificate:");
+
+            PemWriter pw = new PemWriter(new OutputStreamWriter(System.out));
 
             if (cert != null) {
                 pw.writeObject(new PemObject("CERTIFICATE", cert.getEncoded()));
             }
 
             pw.flush();
-            pw.close();
         } catch (IOException | CertificateEncodingException e) {
             throw new IllegalArgumentException("Error printing X509 format: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Writes a PEM formatted private key to a string buffer and returns the result
+     *
+     * @param privateKey the private key to write, may be null
+     * @return String containing the PEM formatted private key
+     */
+    public static String privateKeyToString(PrivateKey privateKey) {
+        try {
+            StringWriter stringWriter = new StringWriter();
+            PemWriter pemWriter = new PemWriter(stringWriter);
+
+            if (privateKey != null) {
+                pemWriter.writeObject(new PemObject("PRIVATE KEY", privateKey.getEncoded()));
+            }
+
+            pemWriter.flush();
+            pemWriter.close();
+
+            return stringWriter.toString();
+        } catch (IOException e) {
+            throw new IllegalArgumentException("Error creating PEM format: " + e.getMessage());
         }
     }
 

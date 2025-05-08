@@ -101,7 +101,7 @@ public class VaultClient {
             kvOps.put(secretPath, secretData);
 
             System.out.println("Successfully wrote secret to Vault at path: " + kvMountPath + "/data/" + secretPath);
-            System.out.println("Secret content: " + secretData);
+            System.out.println("Secret content: " + secretData.keySet());
             return true;
         } catch (VaultException e) {
             System.err.println("Error performing Vault KV operation: " + e.getMessage());

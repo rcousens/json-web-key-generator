@@ -15,19 +15,12 @@ public class KeyGenerator {
      * Creates a JWK based on the specified parameters
      * @param size Key size (required for RSA keys)
      * @param kid Key ID generator
-     * @param keyType Type of key to generate (RSA, EC, etc.)
      * @param keyUse Key usage (signing, encryption)
      * @param keyAlg Algorithm for the key
      * @return The generated JWK
      */
-    public static JWK makeKey(String size, KeyIdGenerator kid, KeyType keyType, KeyUse keyUse, Algorithm keyAlg) {
-        JWK jwk;
-        if (keyType.equals(KeyType.RSA)) {
-            jwk = makeRsaKey(size, kid, keyUse, keyAlg);
-        } else {
-            throw new IllegalArgumentException("Unknown key type: " + keyType);
-        }
-        return jwk;
+    public static JWK makeKey(String size, KeyIdGenerator kid, KeyUse keyUse, Algorithm keyAlg) {
+        return makeRsaKey(size, kid, keyUse, keyAlg);
     }
 
     /**
