@@ -1,6 +1,3 @@
-/**
- *
- */
 package io.swyftx.jwk;
 
 import java.security.KeyPair;
@@ -13,9 +10,6 @@ import com.nimbusds.jose.Algorithm;
 import com.nimbusds.jose.jwk.KeyUse;
 import com.nimbusds.jose.jwk.RSAKey;
 
-/**
- * @author jricher
- */
 public class RSAKeyMaker {
 
     /**

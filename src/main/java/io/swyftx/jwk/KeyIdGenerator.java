@@ -11,11 +11,6 @@ import com.nimbusds.jose.jwk.KeyUse;
 import com.nimbusds.jose.util.Base64;
 import com.nimbusds.jose.util.Base64URL;
 
-/**
- * @author jricher
- *
- */
-// KeyID generator functions
 public class KeyIdGenerator {
 	public static KeyIdGenerator TIMESTAMP = new KeyIdGenerator("timestamp", (use, pubKey) -> {
 		return Optional.ofNullable(use).map(KeyUse::getValue).map(s -> s + "-").orElse("")

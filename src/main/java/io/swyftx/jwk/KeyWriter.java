@@ -46,7 +46,6 @@ import com.nimbusds.jose.jwk.KeyType;
  */
 public class KeyWriter {
 
-
     /**
      * Displays a JWK to the console as JSON
      *
