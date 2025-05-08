@@ -1,4 +1,4 @@
-package org.mitre.jose.jwk;
+package io.swyftx.jwk;
 
 // Standard Java Security & Crypto
 import java.security.Security;

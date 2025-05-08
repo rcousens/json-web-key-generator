@@ -1,4 +1,4 @@
-package org.mitre.jose.jwk;
+package io.swyftx.jwk;
 
 import java.io.BufferedWriter;
 import java.io.File;

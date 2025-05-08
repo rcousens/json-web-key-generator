@@ -1,4 +1,4 @@
-package org.mitre.jose.jwk;
+package io.swyftx.jwk;
 
 import com.google.common.base.Strings;
 import com.nimbusds.jose.Algorithm;

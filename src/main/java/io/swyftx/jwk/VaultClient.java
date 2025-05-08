@@ -1,4 +1,4 @@
-package org.mitre.jose.jwk;
+package io.swyftx.jwk;
 
 import org.springframework.vault.VaultException;
 import org.springframework.vault.authentication.ClientAuthentication;

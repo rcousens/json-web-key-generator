@@ -1,7 +1,7 @@
 /**
  *
  */
-package org.mitre.jose.jwk;
+package io.swyftx.jwk;
 
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;

@@ -1,7 +1,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>org.mitre</groupId>
+	<groupId>io.swyftx</groupId>
 	<artifactId>json-web-key-generator</artifactId>
 	<version>0.9-SNAPSHOT</version>
 	<packaging>jar</packaging>
@@ -11,13 +11,13 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <java.version>11</java.version>
+        <java.version>24</java.version>
 	</properties>
 
 	<scm>
-		<connection>scm:git:https://github.com/mitreid-connect/json-web-key-generator.git</connection>
-		<developerConnection>scm:git:git@github.com:mitreid-connect/json-web-key-generator.git</developerConnection>
-		<url>https://github.com/mitreid-connect/json-web-key-generator.git</url>
+		<connection>scm:git:https://github.com/rcousens/json-web-key-generator.git</connection>
+		<developerConnection>scm:git:git@github.com:rcousens/json-web-key-generator.git</developerConnection>
+		<url>https://github.com/rcousens/json-web-key-generator.git</url>
 		<tag>HEAD</tag>
 	</scm>
 
@@ -45,9 +45,10 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<configuration>
-					<source>22</source>
-					<target>22</target>
+				<version>3.14.0</version>
+                <configuration>
+					<source>24</source>
+					<target>24</target>
 				</configuration>
 			</plugin>
 			<plugin>
@@ -59,12 +60,12 @@
 					</descriptorRefs>
 					<archive>
 						<manifest>
-							<mainClass>org.mitre.jose.jwk.Launcher</mainClass>
-							<packageName>org.mitre.jose.jwk</packageName>
+							<mainClass>io.swyftx.jwk.Launcher</mainClass>
+							<packageName>io.swyftx.jwk</packageName>
 						</manifest>
 						<manifestEntries>
 							<mode>development</mode>
-							<url>${pom.url}</url>
+							<url>${project.url}</url>
 						</manifestEntries>
 
 					</archive>
